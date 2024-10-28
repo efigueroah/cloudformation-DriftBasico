@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Stack para ejercicios de deteccion de cambios (drift) en plantillas de AWS
+  CloudFormation, usando instancias RDS, SNS/Topics y SQS
+  Recordar eliminar este Stack al finalizar la practica
+Parameters:
+  MySubnetGroupName:
+    Type: String
+    Default: default-vpc-0b7f8d7f0c4d4c42a
+    Description: DB subnet group name
+    AllowedPattern: .+
+
+Resources:
+  DbInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t4g.micro
+      Engine: mysql
+      MultiAZ: false
+      StorageType: gp2
+      AllocatedStorage: 20
+      MasterUsername: dbadmin
+      MasterUserPassword: dbpassword
+      DBSubnetGroupName: !Ref MySubnetGroupName
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-db-instance
+
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: My Topic
+
+
+  MyQueue:
+    Properties:
+      QueueName: MyQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
+    Type: AWS::SQS::Queue
+
+Outputs:
+  QueueName:
+    Description: Nombre de la cola SQS
+    Value:
+      Fn::GetAtt:
+      - MyQueue
+      - QueueName
+  QueueURL:
+    Description: URL de la cola SQS
+    Value:
+      Ref: MyQueue
+  QueueARN:
+    Description: ARN de la cola SQS
+    Value:
+      Fn::GetAtt:
+      - MyQueue
+      - Arn
+      
+      

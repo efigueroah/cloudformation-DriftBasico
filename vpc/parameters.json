@@ -1,0 +1,6 @@
+[
+    {
+        "ParameterKey" : "MySubnetGroupName",
+        "ParameterValue" : "eifh-vpc-driftstack-dbsubnetgroup-plv60xbjfqux"
+    }
+]
